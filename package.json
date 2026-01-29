@@ -1,0 +1,39 @@
+{
+  "name": "@guardspine/kernel",
+  "version": "0.1.0",
+  "description": "Offline evidence-bundle verification and sealing for GuardSpine",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "guardspine",
+    "evidence",
+    "verification",
+    "hash-chain",
+    "integrity"
+  ],
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/node": "^25.1.0",
+    "typescript": "^5.4.0",
+    "vitest": "^2.0.0"
+  }
+}
