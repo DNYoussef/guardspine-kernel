@@ -51,6 +51,15 @@ function contentHash(content: object): string {
 export function verifyHashChain(chain: HashChain): VerificationResult {
   const errors: VerificationError[] = [];
 
+  if (!Array.isArray(chain) || chain.length === 0) {
+    errors.push({
+      code: ErrorCode.INPUT_VALIDATION_FAILED,
+      message: "Hash chain must be a non-empty array",
+      details: { received: Array.isArray(chain) ? "empty array" : typeof chain },
+    });
+    return { valid: false, errors };
+  }
+
   for (let seq = 0; seq < chain.length; seq++) {
     const link = chain[seq];
 
@@ -105,6 +114,15 @@ export function verifyHashChain(chain: HashChain): VerificationResult {
 export function verifyRootHash(proof: ImmutabilityProof): VerificationResult {
   const errors: VerificationError[] = [];
 
+  if (!proof || !Array.isArray(proof.hash_chain) || proof.hash_chain.length === 0) {
+    errors.push({
+      code: ErrorCode.INPUT_VALIDATION_FAILED,
+      message: "Immutability proof must contain a non-empty hash_chain",
+      details: { received: proof ? typeof proof.hash_chain : "null proof" },
+    });
+    return { valid: false, errors };
+  }
+
   const concat = proof.hash_chain.map((link) => link.chain_hash).join("");
   const expected = sha256(concat);
 
@@ -127,6 +145,15 @@ export function verifyRootHash(proof: ImmutabilityProof): VerificationResult {
  */
 export function verifyContentHashes(items: EvidenceItem[]): VerificationResult {
   const errors: VerificationError[] = [];
+
+  if (!Array.isArray(items) || items.length === 0) {
+    errors.push({
+      code: ErrorCode.INPUT_VALIDATION_FAILED,
+      message: "Items must be a non-empty array",
+      details: { received: Array.isArray(items) ? "empty array" : typeof items },
+    });
+    return { valid: false, errors };
+  }
 
   for (const item of items) {
     const expected = contentHash(item.content);
@@ -193,8 +220,17 @@ export function verifyBundle(bundle: EvidenceBundle): VerificationResult {
   const rootResult = verifyRootHash(bundle.immutability_proof);
   errors.push(...rootResult.errors);
 
-  // Cross-check: chain content_hash should match item content_hash
+  // Verify items count matches chain length
   const chain = bundle.immutability_proof.hash_chain;
+  if (bundle.items.length !== chain.length) {
+    errors.push({
+      code: ErrorCode.LENGTH_MISMATCH,
+      message: `Items count (${bundle.items.length}) does not match chain length (${chain.length})`,
+      details: { items: bundle.items.length, chain: chain.length },
+    });
+  }
+
+  // Cross-check: chain content_hash should match item content_hash
   for (let seq = 0; seq < bundle.items.length && seq < chain.length; seq++) {
     if (!safeEqual(bundle.items[seq].content_hash, chain[seq].content_hash)) {
       errors.push({
