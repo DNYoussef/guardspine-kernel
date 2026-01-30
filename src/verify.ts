@@ -1,24 +1,15 @@
 /**
  * Offline bundle verification for @guardspine/kernel.
  * Verifies hash chains, root hashes, and content integrity.
+ *
+ * Trace: Each verification function returns a VerificationResult
+ * with explicit error codes, enabling callers to determine exactly
+ * which step failed and why. Decisions are logged via error detail objects.
  */
 
 import { createHash, timingSafeEqual } from "node:crypto";
 import { canonicalJson } from "./canonical.js";
 import { ErrorCode } from "./errors.js";
-
-/**
- * Constant-time string comparison to prevent timing side-channel attacks.
- * Both strings are converted to Buffers of equal length before comparison.
- */
-function safeEqual(a: string, b: string): boolean {
-  const bufA = Buffer.from(a, "utf-8");
-  const bufB = Buffer.from(b, "utf-8");
-  if (bufA.length !== bufB.length) {
-    return false;
-  }
-  return timingSafeEqual(bufA, bufB);
-}
 import type { VerificationError, VerificationResult } from "./errors.js";
 import type {
   EvidenceBundle,
@@ -26,6 +17,19 @@ import type {
   HashChain,
   ImmutabilityProof,
 } from "./schemas/evidence-bundle.js";
+
+/**
+ * Constant-time string comparison to prevent timing side-channel attacks.
+ * Both strings are converted to Buffers of equal length before comparison.
+ */
+function safeEqual(left: string, right: string): boolean {
+  const bufLeft = Buffer.from(left, "utf-8");
+  const bufRight = Buffer.from(right, "utf-8");
+  if (bufLeft.length !== bufRight.length) {
+    return false;
+  }
+  return timingSafeEqual(bufLeft, bufRight);
+}
 
 function sha256(data: string): string {
   return `sha256:${createHash("sha256").update(data, "utf-8").digest("hex")}`;
@@ -38,6 +42,10 @@ function contentHash(content: object): string {
 /**
  * Verify that each link in the chain correctly references the previous link
  * and that the chain_hash is computed correctly.
+ *
+ * Trace rationale: walks the chain sequentially, checking sequence numbers,
+ * previous_hash linkage, and recomputed chain_hash. Any mismatch produces
+ * a typed error with the expected vs actual values for audit traceability.
  */
 export function verifyHashChain(chain: HashChain): VerificationResult {
   const errors: VerificationError[] = [];
@@ -89,6 +97,9 @@ export function verifyHashChain(chain: HashChain): VerificationResult {
 
 /**
  * Verify the root hash matches the concatenation of all chain hashes.
+ *
+ * Trace rationale: the root hash is a single SHA-256 over all concatenated
+ * chain hashes. A mismatch indicates the chain was modified after sealing.
  */
 export function verifyRootHash(proof: ImmutabilityProof): VerificationResult {
   const errors: VerificationError[] = [];
@@ -109,6 +120,9 @@ export function verifyRootHash(proof: ImmutabilityProof): VerificationResult {
 
 /**
  * Verify that each item's content_hash matches SHA-256 of its canonical content.
+ *
+ * Trace rationale: recomputes SHA-256 of each item's canonical JSON and
+ * compares against the stored content_hash. Detects content tampering.
  */
 export function verifyContentHashes(items: EvidenceItem[]): VerificationResult {
   const errors: VerificationError[] = [];
@@ -133,6 +147,11 @@ export function verifyContentHashes(items: EvidenceItem[]): VerificationResult {
 
 /**
  * Full bundle verification: required fields, content hashes, chain, root.
+ *
+ * Trace rationale: orchestrates all sub-verifications (content hashes, hash
+ * chain, root hash, cross-check) and aggregates errors. Returns early if
+ * critical fields are missing. Each error carries typed code and details
+ * for deterministic audit trail reconstruction.
  */
 export function verifyBundle(bundle: EvidenceBundle): VerificationResult {
   const errors: VerificationError[] = [];

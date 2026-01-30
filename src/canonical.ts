@@ -41,32 +41,31 @@ function serializeValue(value: unknown): string {
   }
 }
 
-function serializeNumber(n: number): string {
-  if (!isFinite(n)) {
+function serializeNumber(num: number): string {
+  if (!isFinite(num)) {
     return "null";
   }
 
   // RFC 8785: use the shortest representation that round-trips.
   // For integers, no decimal point or exponent.
   // For floats, use toString which gives shortest round-trip in V8.
-  if (Number.isInteger(n) && Math.abs(n) < Number.MAX_SAFE_INTEGER) {
+  if (Number.isInteger(num) && Math.abs(num) < Number.MAX_SAFE_INTEGER) {
     // Avoid scientific notation for large integers
-    if (Math.abs(n) < 1e20) {
-      return n.toString();
+    if (Math.abs(num) < 1e20) {
+      return num.toString();
     }
   }
 
   // ES2015+ Number.prototype.toString produces the shortest
   // round-tripping representation. RFC 8785 defers to ES
   // serialization rules (ECMAScript NumberToString).
-  const s = JSON.stringify(n);
-  return s;
+  return JSON.stringify(num);
 }
 
-function serializeString(s: string): string {
+function serializeString(text: string): string {
   // Use JSON.stringify for proper escaping, which handles
   // control characters, backslash, and double-quote.
-  return JSON.stringify(s);
+  return JSON.stringify(text);
 }
 
 function serializeArray(arr: unknown[]): string {
