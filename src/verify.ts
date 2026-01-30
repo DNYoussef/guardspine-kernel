@@ -10,6 +10,7 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import { canonicalJson } from "./canonical.js";
 import { ErrorCode } from "./errors.js";
+import { GENESIS_HASH } from "./seal.js";
 import type { VerificationError, VerificationResult } from "./errors.js";
 import type {
   EvidenceBundle,
@@ -50,26 +51,26 @@ function contentHash(content: object): string {
 export function verifyHashChain(chain: HashChain): VerificationResult {
   const errors: VerificationError[] = [];
 
-  for (let i = 0; i < chain.length; i++) {
-    const link = chain[i];
+  for (let seq = 0; seq < chain.length; seq++) {
+    const link = chain[seq];
 
     // Check sequence
-    if (link.sequence !== i) {
+    if (link.sequence !== seq) {
       errors.push({
         code: ErrorCode.SEQUENCE_GAP,
-        message: `Expected sequence ${i}, got ${link.sequence}`,
-        details: { expected: i, actual: link.sequence },
+        message: `Expected sequence ${seq}, got ${link.sequence}`,
+        details: { expected: seq, actual: link.sequence },
       });
     }
 
     // Check previous_hash
-    const expectedPrev = i === 0 ? "genesis" : chain[i - 1].chain_hash;
+    const expectedPrev = seq === 0 ? GENESIS_HASH : chain[seq - 1].chain_hash;
     if (!safeEqual(link.previous_hash, expectedPrev)) {
       errors.push({
         code: ErrorCode.HASH_CHAIN_BROKEN,
-        message: `Chain broken at sequence ${i}: previous_hash mismatch`,
+        message: `Chain broken at sequence ${seq}: previous_hash mismatch`,
         details: {
-          sequence: i,
+          sequence: seq,
           expected: expectedPrev,
           actual: link.previous_hash,
         },
@@ -82,9 +83,9 @@ export function verifyHashChain(chain: HashChain): VerificationResult {
     if (!safeEqual(link.chain_hash, expected)) {
       errors.push({
         code: ErrorCode.HASH_CHAIN_BROKEN,
-        message: `Chain hash mismatch at sequence ${i}`,
+        message: `Chain hash mismatch at sequence ${seq}`,
         details: {
-          sequence: i,
+          sequence: seq,
           expected,
           actual: link.chain_hash,
         },
@@ -194,15 +195,15 @@ export function verifyBundle(bundle: EvidenceBundle): VerificationResult {
 
   // Cross-check: chain content_hash should match item content_hash
   const chain = bundle.immutability_proof.hash_chain;
-  for (let i = 0; i < bundle.items.length && i < chain.length; i++) {
-    if (!safeEqual(bundle.items[i].content_hash, chain[i].content_hash)) {
+  for (let seq = 0; seq < bundle.items.length && seq < chain.length; seq++) {
+    if (!safeEqual(bundle.items[seq].content_hash, chain[seq].content_hash)) {
       errors.push({
         code: ErrorCode.CONTENT_HASH_MISMATCH,
-        message: `Item ${i} content_hash does not match chain link`,
+        message: `Item ${seq} content_hash does not match chain link`,
         details: {
-          sequence: i,
-          item_hash: bundle.items[i].content_hash,
-          chain_hash: chain[i].content_hash,
+          sequence: seq,
+          item_hash: bundle.items[seq].content_hash,
+          chain_hash: chain[seq].content_hash,
         },
       });
     }

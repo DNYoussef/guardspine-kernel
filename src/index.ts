@@ -8,6 +8,7 @@ export { canonicalJson } from "./canonical.js";
 
 // Sealing
 export {
+  GENESIS_HASH,
   computeContentHash,
   buildHashChain,
   computeRootHash,

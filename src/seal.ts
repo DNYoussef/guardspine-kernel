@@ -13,6 +13,9 @@ import type {
   ImmutabilityProof,
 } from "./schemas/evidence-bundle.js";
 
+/** Sentinel value for the first link in a hash chain (no predecessor). */
+export const GENESIS_HASH = "genesis";
+
 /**
  * Compute SHA-256 of the canonical JSON representation of an object.
  * Returns "sha256:<hex>".
@@ -44,15 +47,15 @@ export interface ChainInput {
 export function buildHashChain(items: ChainInput[]): HashChain {
   const chain: HashChainLink[] = [];
 
-  for (let i = 0; i < items.length; i++) {
-    const contentHash = computeContentHash(items[i].content);
-    const previousHash = i === 0 ? "genesis" : chain[i - 1].chain_hash;
-    const chainInput = `${i}|${contentHash}|${previousHash}`;
+  for (let seq = 0; seq < items.length; seq++) {
+    const itemContentHash = computeContentHash(items[seq].content);
+    const previousHash = seq === 0 ? GENESIS_HASH : chain[seq - 1].chain_hash;
+    const chainInput = `${seq}|${itemContentHash}|${previousHash}`;
     const chainHash = sha256(chainInput);
 
     chain.push({
-      sequence: i,
-      content_hash: contentHash,
+      sequence: seq,
+      content_hash: itemContentHash,
       previous_hash: previousHash,
       chain_hash: chainHash,
     });
@@ -94,12 +97,12 @@ export function sealBundle(
   const chain = buildHashChain(chainInputs);
   const rootHash = computeRootHash(chain);
 
-  const sealedItems: EvidenceItem[] = bundle.items.map((item, i) => ({
-    item_id: item.item_id ?? `item-${i}`,
+  const sealedItems: EvidenceItem[] = bundle.items.map((item, idx) => ({
+    item_id: item.item_id ?? `item-${idx}`,
     content_type: item.content_type ?? "unknown",
     content: (item.content ?? {}) as Record<string, unknown>,
-    content_hash: chain[i].content_hash,
-    sequence: i,
+    content_hash: chain[idx].content_hash,
+    sequence: idx,
   }));
 
   return {
