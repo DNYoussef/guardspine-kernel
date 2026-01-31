@@ -1,0 +1,364 @@
+{
+  "meta": {
+    "repo": "guardspine-kernel",
+    "description": "Offline evidence bundle verification with timing-safe comparisons",
+    "language": "typescript",
+    "timestamp": "2026-01-31T06:15:09.289494+00:00",
+    "models": [
+      "qwen2.5-coder:7b",
+      "qwen3:8b",
+      "falcon3:7b"
+    ],
+    "files_reviewed": [
+      "canonical.ts",
+      "errors.ts",
+      "index.ts",
+      "seal.ts",
+      "verify.ts"
+    ],
+    "total_reviews": 33
+  },
+  "request_id": "a673955c66c2",
+  "overall_decision": "needs-review",
+  "summary": "NEEDS-REVIEW: nomotic, safety-violations",
+  "rubric_verdicts": [
+    {
+      "rubric": "clarity",
+      "decision": "pass",
+      "critical_findings_count": 0,
+      "votes": [
+        {
+          "reviewer_id": "ollama-qwen2.5-coder:7b-4e4b9a",
+          "decision": "approve",
+          "confidence": 1.0,
+          "rationale": "All public functions in the reviewed files have been documented with docstrings, as required by CLR-009. No additional violations were found, and all severity ratings match the rubric criteria.",
+          "findings_count": 0
+        },
+        {
+          "reviewer_id": "ollama-qwen3:8b-a41e79",
+          "decision": "approve",
+          "confidence": 1.0,
+          "rationale": "The scanner's findings are valid and represent low-severity issues where public functions lack docstrings. The codebase is generally clear and well-structured with adequate comments and type annotations, which contribute to readability and maintainability. The missed violations are not significant, ",
+          "findings_count": 2
+        },
+        {
+          "reviewer_id": "ollama-falcon3:7b-a7c4d4",
+          "decision": "abstain",
+          "confidence": 0.0,
+          "rationale": "",
+          "findings_count": 0
+        }
+      ]
+    },
+    {
+      "rubric": "connascence",
+      "decision": "pass",
+      "critical_findings_count": 0,
+      "votes": [
+        {
+          "reviewer_id": "ollama-qwen2.5-coder:7b-4e4b9a",
+          "decision": "approve",
+          "confidence": 1.0,
+          "rationale": "The code does not contain any obvious violations of the connascence rubric as reviewed by the scanner.",
+          "findings_count": 0
+        },
+        {
+          "reviewer_id": "ollama-qwen3:8b-a41e79",
+          "decision": "approve",
+          "confidence": 1.0,
+          "rationale": "The scanner did not find any violations, and after a thorough review, no connascence coupling issues were identified. The code is well-structured with clear separation of concerns and minimal coupling between components. The code adheres to best practices with proper error handling, type safety, and",
+          "findings_count": 0
+        },
+        {
+          "reviewer_id": "ollama-falcon3:7b-a7c4d4",
+          "decision": "abstain",
+          "confidence": 0.0,
+          "rationale": "",
+          "findings_count": 0
+        }
+      ]
+    },
+    {
+      "rubric": "hipaa-safeguards",
+      "decision": "pass",
+      "critical_findings_count": 0,
+      "votes": [
+        {
+          "reviewer_id": "ollama-qwen2.5-coder:7b-4e4b9a",
+          "decision": "approve",
+          "confidence": 1.0,
+          "rationale": "The code appears to be a secure implementation for offline evidence-bundle verification and sealing. It follows best practices such as using canonical JSON serialization, cryptographic hash functions, and constant-time string comparisons to prevent timing side-channel attacks. There are no obvious v",
+          "findings_count": 0
+        },
+        {
+          "reviewer_id": "ollama-qwen3:8b-a41e79",
+          "decision": "approve",
+          "confidence": 1.0,
+          "rationale": "The codebase adheres to HIPAA safeguards by implementing cryptographic operations using SHA-256, ensuring data integrity through hash chains and root hashes, and providing detailed error handling with explicit error codes. There are no violations found by the scanner, and no missed violations identi",
+          "findings_count": 0
+        },
+        {
+          "reviewer_id": "ollama-falcon3:7b-a7c4d4",
+          "decision": "abstain",
+          "confidence": 0.0,
+          "rationale": "",
+          "findings_count": 0
+        }
+      ]
+    },
+    {
+      "rubric": "mece",
+      "decision": "pass",
+      "critical_findings_count": 0,
+      "votes": [
+        {
+          "reviewer_id": "ollama-qwen2.5-coder:7b-4e4b9a",
+          "decision": "approve",
+          "confidence": 1.0,
+          "rationale": "The scanner did not find any violations, and a manual review of the code does not reveal any duplication or gaps in code coverage.",
+          "findings_count": 0
+        },
+        {
+          "reviewer_id": "ollama-qwen3:8b-a41e79",
+          "decision": "approve",
+          "confidence": 1.0,
+          "rationale": "The deterministic scanner found no violations, and upon review, there are no MECE violations detected. The code adheres to the specified standards without duplication or gaps in coverage. All functions and error handling are well-structured and comprehensive.",
+          "findings_count": 0
+        },
+        {
+          "reviewer_id": "ollama-falcon3:7b-a7c4d4",
+          "decision": "abstain",
+          "confidence": 0.0,
+          "rationale": "",
+          "findings_count": 0
+        }
+      ]
+    },
+    {
+      "rubric": "nasa-safety",
+      "decision": "pass",
+      "critical_findings_count": 0,
+      "votes": [
+        {
+          "reviewer_id": "ollama-qwen2.5-coder:7b-4e4b9a",
+          "decision": "approve",
+          "confidence": 1.0,
+          "rationale": "The code does not contain any apparent violations of the NASA Power of 10 rules for safety-critical code development.",
+          "findings_count": 0
+        },
+        {
+          "reviewer_id": "ollama-qwen3:8b-a41e79",
+          "decision": "approve",
+          "confidence": 1.0,
+          "rationale": "The codebase adheres to NASA Power of 10 safety-critical development rules. No scanner violations were found, and no critical safety issues were identified. The code implements cryptographic hashing (SHA-256), error handling with specific error codes, and deterministic serialization (canonical JSON)",
+          "findings_count": 0
+        },
+        {
+          "reviewer_id": "ollama-falcon3:7b-a7c4d4",
+          "decision": "abstain",
+          "confidence": 0.0,
+          "rationale": "",
+          "findings_count": 0
+        }
+      ]
+    },
+    {
+      "rubric": "nomotic",
+      "decision": "needs-review",
+      "critical_findings_count": 0,
+      "votes": [
+        {
+          "reviewer_id": "ollama-qwen2.5-coder:7b-4e4b9a",
+          "decision": "abstain",
+          "confidence": 0.0,
+          "rationale": "",
+          "findings_count": 0
+        },
+        {
+          "reviewer_id": "ollama-qwen3:8b-a41e79",
+          "decision": "abstain",
+          "confidence": 0.0,
+          "rationale": "",
+          "findings_count": 0
+        },
+        {
+          "reviewer_id": "ollama-falcon3:7b-a7c4d4",
+          "decision": "abstain",
+          "confidence": 0.0,
+          "rationale": "",
+          "findings_count": 0
+        }
+      ]
+    },
+    {
+      "rubric": "pci-dss-requirements",
+      "decision": "pass",
+      "critical_findings_count": 0,
+      "votes": [
+        {
+          "reviewer_id": "ollama-qwen2.5-coder:7b-4e4b9a",
+          "decision": "approve",
+          "confidence": 1.0,
+          "rationale": "The provided code does not contain any obvious violations of the PCI DSS requirements based on the deterministic scanner's findings and manual review.",
+          "findings_count": 0
+        },
+        {
+          "reviewer_id": "ollama-qwen3:8b-a41e79",
+          "decision": "approve",
+          "confidence": 1.0,
+          "rationale": "The provided codebase adheres to PCI DSS requirements by implementing secure cryptographic practices, proper error handling, and input validation. The code uses SHA-256 for hashing, which is compliant with PCI DSS requirements. The code also includes proper error handling and validation mechanisms t",
+          "findings_count": 0
+        },
+        {
+          "reviewer_id": "ollama-falcon3:7b-a7c4d4",
+          "decision": "abstain",
+          "confidence": 0.0,
+          "rationale": "",
+          "findings_count": 0
+        }
+      ]
+    },
+    {
+      "rubric": "safety-violations",
+      "decision": "needs-review",
+      "critical_findings_count": 0,
+      "votes": [
+        {
+          "reviewer_id": "ollama-qwen2.5-coder:7b-4e4b9a",
+          "decision": "approve",
+          "confidence": 1.0,
+          "rationale": "No false positives were identified by the deterministic scanner, and no violations were missed.",
+          "findings_count": 0
+        },
+        {
+          "reviewer_id": "ollama-qwen3:8b-a41e79",
+          "decision": "abstain",
+          "confidence": 0.0,
+          "rationale": "Failed to parse model output: {\"decision\":\"approve\",\"confidence\":1.0,\"rationale\":\"The scanner found no safety violations, and upon review, there are no dangerous patterns such as god objects, parameter bombs, or critical violation",
+          "findings_count": 0
+        },
+        {
+          "reviewer_id": "ollama-falcon3:7b-a7c4d4",
+          "decision": "abstain",
+          "confidence": 0.0,
+          "rationale": "",
+          "findings_count": 0
+        }
+      ]
+    },
+    {
+      "rubric": "six-sigma",
+      "decision": "pass",
+      "critical_findings_count": 0,
+      "votes": [
+        {
+          "reviewer_id": "ollama-qwen2.5-coder:7b-4e4b9a",
+          "decision": "approve",
+          "confidence": 1.0,
+          "rationale": "The code appears to be a well-structured and functional implementation of a cryptographic library. There are no obvious issues that would impact the functionality or security of the software.",
+          "findings_count": 0
+        },
+        {
+          "reviewer_id": "ollama-qwen3:8b-a41e79",
+          "decision": "approve",
+          "confidence": 1.0,
+          "rationale": "The codebase adheres to Six Sigma quality metrics for software development. No violations were found by the deterministic scanner, and no critical issues are present. The code is well-structured, follows best practices for error handling, and has comprehensive validation mechanisms. The implementati",
+          "findings_count": 0
+        },
+        {
+          "reviewer_id": "ollama-falcon3:7b-a7c4d4",
+          "decision": "abstain",
+          "confidence": 0.0,
+          "rationale": "",
+          "findings_count": 0
+        }
+      ]
+    },
+    {
+      "rubric": "soc2-controls",
+      "decision": "pass",
+      "critical_findings_count": 0,
+      "votes": [
+        {
+          "reviewer_id": "ollama-qwen2.5-coder:7b-4e4b9a",
+          "decision": "approve",
+          "confidence": 1.0,
+          "rationale": "The code provided does not contain any security vulnerabilities that would impact SOC 2 compliance. The implementation appears to be correct and follows best practices for cryptographic hash functions, error handling, and verification.",
+          "findings_count": 0
+        },
+        {
+          "reviewer_id": "ollama-qwen3:8b-a41e79",
+          "decision": "approve",
+          "confidence": 1.0,
+          "rationale": "The codebase adheres to SOC 2 controls with no scanner violations. All cryptographic operations use SHA-256, hash chains are properly constructed and verified, and error handling is explicit with detailed error codes. No critical or high severity issues were found. The implementation follows best pr",
+          "findings_count": 0
+        },
+        {
+          "reviewer_id": "ollama-falcon3:7b-a7c4d4",
+          "decision": "abstain",
+          "confidence": 0.0,
+          "rationale": "Provider error: ",
+          "findings_count": 0
+        }
+      ]
+    },
+    {
+      "rubric": "theater-detection",
+      "decision": "pass",
+      "critical_findings_count": 0,
+      "votes": [
+        {
+          "reviewer_id": "ollama-qwen2.5-coder:7b-4e4b9a",
+          "decision": "approve",
+          "confidence": 1.0,
+          "rationale": "The code appears to be a well-structured implementation of a system for canonical JSON serialization, sealing evidence bundles, and verifying their integrity. The use of cryptographic hashes, constant-time string comparison, and structured error handling suggests high quality and security. No obviou",
+          "findings_count": 0
+        },
+        {
+          "reviewer_id": "ollama-qwen3:8b-a41e79",
+          "decision": "approve",
+          "confidence": 1.0,
+          "rationale": "The scanner found no violations, and after thorough review, there are no apparent fake practices that appear valuable but aren't. The code adheres to the theater-detection rubric by implementing proper cryptographic practices, input validation, error handling, and secure data handling. All cryptogra",
+          "findings_count": 0
+        },
+        {
+          "reviewer_id": "ollama-falcon3:7b-a7c4d4",
+          "decision": "abstain",
+          "confidence": 0.0,
+          "rationale": "",
+          "findings_count": 0
+        }
+      ]
+    }
+  ],
+  "by_file": {
+    "seal.ts": {
+      "critical_count": 0,
+      "total_findings": 1,
+      "findings": [
+        {
+          "rubric": "clarity",
+          "reviewer": "ollama-qwen3:8b-a41e79",
+          "severity": "low",
+          "category": "documentation",
+          "description": "Public function 'computeContentHash' lacks a docstring. Add a docstring explaining the function's purpose, parameters, and return value.",
+          "line": null
+        }
+      ]
+    },
+    "verify.ts": {
+      "critical_count": 0,
+      "total_findings": 1,
+      "findings": [
+        {
+          "rubric": "clarity",
+          "reviewer": "ollama-qwen3:8b-a41e79",
+          "severity": "low",
+          "category": "documentation",
+          "description": "Public function 'verifyContentHashes' lacks a docstring. Add a docstring explaining the function's purpose, parameters, and return value.",
+          "line": null
+        }
+      ]
+    }
+  }
+}
