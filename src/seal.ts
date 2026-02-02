@@ -50,11 +50,13 @@ export function buildHashChain(items: ChainInput[]): HashChain {
   for (let seq = 0; seq < items.length; seq++) {
     const itemContentHash = computeContentHash(items[seq].content);
     const previousHash = seq === 0 ? GENESIS_HASH : chain[seq - 1].chain_hash;
-    const chainInput = `${seq}|${itemContentHash}|${previousHash}`;
+    const chainInput = `${seq}|${items[seq].contentId}|${items[seq].contentType}|${itemContentHash}|${previousHash}`;
     const chainHash = sha256(chainInput);
 
     chain.push({
       sequence: seq,
+      item_id: items[seq].contentId,
+      content_type: items[seq].contentType,
       content_hash: itemContentHash,
       previous_hash: previousHash,
       chain_hash: chainHash,

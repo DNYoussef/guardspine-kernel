@@ -86,8 +86,8 @@ export function verifyHashChain(chain: HashChain): VerificationResult {
       });
     }
 
-    // Recompute chain_hash
-    const chainInput = `${link.sequence}|${link.content_hash}|${link.previous_hash}`;
+    // Recompute chain_hash (v0.2.0: includes item_id and content_type)
+    const chainInput = `${link.sequence}|${link.item_id ?? ""}|${link.content_type ?? ""}|${link.content_hash}|${link.previous_hash}`;
     const expected = sha256(chainInput);
     if (!safeEqual(link.chain_hash, expected)) {
       errors.push({
@@ -230,17 +230,46 @@ export function verifyBundle(bundle: EvidenceBundle): VerificationResult {
     });
   }
 
-  // Cross-check: chain content_hash should match item content_hash
+  // Cross-check: chain content_hash, item_id, content_type, sequence should match items
   for (let seq = 0; seq < bundle.items.length && seq < chain.length; seq++) {
-    if (!safeEqual(bundle.items[seq].content_hash, chain[seq].content_hash)) {
+    const item = bundle.items[seq];
+    const link = chain[seq];
+
+    // Verify item.sequence matches its position
+    if (item.sequence !== seq) {
+      errors.push({
+        code: ErrorCode.SEQUENCE_GAP,
+        message: `Item ${seq} has sequence ${item.sequence}, expected ${seq}`,
+        details: { sequence: seq, item_sequence: item.sequence },
+      });
+    }
+
+    if (!safeEqual(item.content_hash, link.content_hash)) {
       errors.push({
         code: ErrorCode.CONTENT_HASH_MISMATCH,
         message: `Item ${seq} content_hash does not match chain link`,
         details: {
           sequence: seq,
-          item_hash: bundle.items[seq].content_hash,
-          chain_hash: chain[seq].content_hash,
+          item_hash: item.content_hash,
+          chain_hash: link.content_hash,
         },
+      });
+    }
+
+    // v0.2.0: verify item_id and content_type are bound to the chain
+    if (link.item_id !== undefined && !safeEqual(item.item_id, link.item_id)) {
+      errors.push({
+        code: ErrorCode.CONTENT_HASH_MISMATCH,
+        message: `Item ${seq} item_id does not match chain link`,
+        details: { sequence: seq, item_id: item.item_id, chain_item_id: link.item_id },
+      });
+    }
+
+    if (link.content_type !== undefined && !safeEqual(item.content_type, link.content_type)) {
+      errors.push({
+        code: ErrorCode.CONTENT_HASH_MISMATCH,
+        message: `Item ${seq} content_type does not match chain link`,
+        details: { sequence: seq, content_type: item.content_type, chain_content_type: link.content_type },
       });
     }
   }

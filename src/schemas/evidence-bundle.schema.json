@@ -1,18 +1,19 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://guardspine.dev/schemas/evidence-bundle.schema.json",
-  "title": "EvidenceBundle",
-  "description": "A tamper-evident collection of evidence items with hash-chain integrity.",
+  "$id": "https://guardspine.dev/schemas/evidence-bundle/v0.2.0",
+  "title": "GuardSpine Evidence Bundle",
+  "description": "Canonical tamper-evident evidence bundle format. All GuardSpine repos MUST emit and validate against this schema.",
   "type": "object",
   "required": ["bundle_id", "version", "created_at", "items", "immutability_proof"],
   "properties": {
     "bundle_id": {
       "type": "string",
+      "format": "uuid",
       "description": "Unique identifier for this bundle (UUID v4)."
     },
     "version": {
       "type": "string",
-      "const": "0.1.0",
+      "const": "0.2.0",
       "description": "Schema version."
     },
     "created_at": {
@@ -24,6 +25,15 @@
       "type": "string",
       "description": "Optional reference to the policy pack used for evaluation."
     },
+    "artifact_id": {
+      "type": "string",
+      "description": "Optional ID of the artifact this bundle covers (from spec)."
+    },
+    "risk_tier": {
+      "type": "string",
+      "enum": ["L0", "L1", "L2", "L3", "L4"],
+      "description": "Optional risk classification tier (from spec)."
+    },
     "items": {
       "type": "array",
       "minItems": 1,
@@ -32,9 +42,15 @@
     "immutability_proof": {
       "$ref": "#/$defs/ImmutabilityProof"
     },
+    "signatures": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Signature" },
+      "description": "Optional cryptographic signatures over the bundle."
+    },
     "metadata": {
       "type": "object",
-      "additionalProperties": true
+      "additionalProperties": true,
+      "description": "Arbitrary metadata (retention, scope, audit trail can go here)."
     }
   },
   "$defs": {
@@ -48,21 +64,26 @@
         },
         "content_type": {
           "type": "string",
-          "description": "MIME-like type tag, e.g. guardspine/test-result."
+          "description": "MIME-like type tag, e.g. guardspine/test-result, guardspine/diff, guardspine/approval."
         },
         "content": {
-          "type": "object",
-          "description": "Arbitrary structured content."
+          "type": ["object", "array"],
+          "description": "Structured content. Objects or arrays accepted; primitives are not."
         },
         "content_hash": {
           "type": "string",
           "pattern": "^sha256:[a-f0-9]{64}$",
-          "description": "SHA-256 hash of canonical JSON of content."
+          "description": "SHA-256 hash of RFC 8785 canonical JSON of content."
         },
         "sequence": {
           "type": "integer",
           "minimum": 0,
-          "description": "Zero-based sequence number in the chain."
+          "description": "Zero-based sequence number. MUST equal the item's index in the items array."
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Optional timestamp of item creation."
         }
       }
     },
@@ -72,39 +93,78 @@
       "properties": {
         "hash_chain": {
           "type": "array",
+          "minItems": 1,
           "items": { "$ref": "#/$defs/HashChainLink" }
         },
         "root_hash": {
           "type": "string",
           "pattern": "^sha256:[a-f0-9]{64}$",
-          "description": "SHA-256 hash of the concatenated chain hashes."
-        },
-        "signature": {
-          "type": "string",
-          "description": "Optional cryptographic signature over root_hash."
+          "description": "SHA-256 of the concatenated chain_hash values."
         }
       }
     },
     "HashChainLink": {
       "type": "object",
-      "required": ["sequence", "content_hash", "previous_hash", "chain_hash"],
+      "required": ["sequence", "item_id", "content_type", "content_hash", "previous_hash", "chain_hash"],
       "properties": {
         "sequence": {
           "type": "integer",
-          "minimum": 0
+          "minimum": 0,
+          "description": "Must match the corresponding EvidenceItem.sequence."
+        },
+        "item_id": {
+          "type": "string",
+          "description": "Bound to the chain to prevent item_id substitution."
+        },
+        "content_type": {
+          "type": "string",
+          "description": "Bound to the chain to prevent content_type substitution."
         },
         "content_hash": {
           "type": "string",
-          "pattern": "^sha256:[a-f0-9]{64}$"
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "SHA-256 of canonical JSON of the item content."
         },
         "previous_hash": {
           "type": "string",
-          "description": "Chain hash of the previous link, or 'genesis' for the first."
+          "description": "chain_hash of the previous link, or 'genesis' for the first."
         },
         "chain_hash": {
           "type": "string",
           "pattern": "^sha256:[a-f0-9]{64}$",
-          "description": "SHA-256 of (sequence + content_hash + previous_hash)."
+          "description": "SHA-256 of (sequence|item_id|content_type|content_hash|previous_hash)."
+        }
+      }
+    },
+    "Signature": {
+      "type": "object",
+      "required": ["signature_id", "algorithm", "signer_id", "signature_value", "signed_at"],
+      "properties": {
+        "signature_id": {
+          "type": "string",
+          "description": "Unique ID for this signature."
+        },
+        "algorithm": {
+          "type": "string",
+          "enum": ["ed25519", "rsa-sha256", "ecdsa-p256", "hmac-sha256"],
+          "description": "Signing algorithm used."
+        },
+        "signer_id": {
+          "type": "string",
+          "description": "Identifier for the signer (human, AI, system)."
+        },
+        "signature_value": {
+          "type": "string",
+          "contentEncoding": "base64",
+          "description": "Base64-encoded signature over the bundle excluding signatures array."
+        },
+        "signed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "public_key_id": {
+          "type": "string",
+          "description": "Optional reference to the public key for verification."
         }
       }
     }
