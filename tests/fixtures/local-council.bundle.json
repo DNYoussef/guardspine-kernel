@@ -1,0 +1,94 @@
+{
+  "bundle_id": "b54399fd-0f43-4544-851f-c7c712d489ee",
+  "version": "0.2.0",
+  "created_at": "2026-02-03T02:28:29.506446+00:00",
+  "items": [
+    {
+      "item_id": "aa9df3c6506c4d99a547363b9879adfc",
+      "content_type": "guardspine/council-vote",
+      "content": {
+        "reviewer_id": "r1",
+        "decision": "approve",
+        "confidence": 0.9,
+        "rationale": "synthetic vote for seam test",
+        "findings": []
+      },
+      "content_hash": "sha256:f3371f50076deb8161df4669c44c7d6cfba1cb9379b6aab6408bfc3d0ed3c500",
+      "sequence": 0
+    },
+    {
+      "item_id": "ffe307eb07d145afbf5a7892379b795b",
+      "content_type": "guardspine/council-vote",
+      "content": {
+        "reviewer_id": "r2",
+        "decision": "approve",
+        "confidence": 0.8,
+        "rationale": "synthetic vote for seam test",
+        "findings": []
+      },
+      "content_hash": "sha256:bc942755f4c8a76c31fe224302d80ab471097421aeea8442904776d693145c79",
+      "sequence": 1
+    },
+    {
+      "item_id": "202fc8000e144c07b7c5bb31ce7c9f84",
+      "content_type": "guardspine/council-vote",
+      "content": {
+        "reviewer_id": "r3",
+        "decision": "approve",
+        "confidence": 0.7,
+        "rationale": "synthetic vote for seam test",
+        "findings": []
+      },
+      "content_hash": "sha256:39efc8fb1c7f0f88eb59881f76ff1dfe2a8a2c88b8cabca257c33dd4df58cceb",
+      "sequence": 2
+    },
+    {
+      "item_id": "3098decfa59545a38f14c131c44bd997",
+      "content_type": "guardspine/council-consensus",
+      "content": {
+        "decision": "approve",
+        "confidence": 1.0,
+        "quorum_met": true
+      },
+      "content_hash": "sha256:2349dab04ba499a406d1ee4946287cb9e509a75bf95bd502ad40fc26093292db",
+      "sequence": 3
+    }
+  ],
+  "immutability_proof": {
+    "hash_chain": [
+      {
+        "sequence": 0,
+        "item_id": "aa9df3c6506c4d99a547363b9879adfc",
+        "content_type": "guardspine/council-vote",
+        "content_hash": "sha256:f3371f50076deb8161df4669c44c7d6cfba1cb9379b6aab6408bfc3d0ed3c500",
+        "previous_hash": "genesis",
+        "chain_hash": "sha256:200cb4a1dc2ecfbe835ca426cde781b887f6c66edec131e9b124758107f660cf"
+      },
+      {
+        "sequence": 1,
+        "item_id": "ffe307eb07d145afbf5a7892379b795b",
+        "content_type": "guardspine/council-vote",
+        "content_hash": "sha256:bc942755f4c8a76c31fe224302d80ab471097421aeea8442904776d693145c79",
+        "previous_hash": "sha256:200cb4a1dc2ecfbe835ca426cde781b887f6c66edec131e9b124758107f660cf",
+        "chain_hash": "sha256:8d99e1a2159593de99b8b0f82794bec3f074c62988074e455f390ee19ce4280e"
+      },
+      {
+        "sequence": 2,
+        "item_id": "202fc8000e144c07b7c5bb31ce7c9f84",
+        "content_type": "guardspine/council-vote",
+        "content_hash": "sha256:39efc8fb1c7f0f88eb59881f76ff1dfe2a8a2c88b8cabca257c33dd4df58cceb",
+        "previous_hash": "sha256:8d99e1a2159593de99b8b0f82794bec3f074c62988074e455f390ee19ce4280e",
+        "chain_hash": "sha256:93a4fdf5094675d0532c0a552c9b42e5475ad629951ff4a7fb9cbeee935d5c28"
+      },
+      {
+        "sequence": 3,
+        "item_id": "3098decfa59545a38f14c131c44bd997",
+        "content_type": "guardspine/council-consensus",
+        "content_hash": "sha256:2349dab04ba499a406d1ee4946287cb9e509a75bf95bd502ad40fc26093292db",
+        "previous_hash": "sha256:93a4fdf5094675d0532c0a552c9b42e5475ad629951ff4a7fb9cbeee935d5c28",
+        "chain_hash": "sha256:bfc9f6fefdea57b42d248351b1d8be5dc1f9fdaf75e8fb8fe7b5cc58766980b2"
+      }
+    ],
+    "root_hash": "sha256:c76c1ad6b0a7bc507e52bffaebeff01737c3b1cdf80ec1085b4a3adfafee0a8c"
+  }
+}

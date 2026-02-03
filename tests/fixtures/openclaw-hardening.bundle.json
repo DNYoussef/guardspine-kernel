@@ -1,0 +1,378 @@
+{
+  "bundle_id": "5feb5268-db6d-4d70-a92c-5734e0da3478",
+  "version": "0.2.0",
+  "created_at": "2026-02-03T04:34:40.979724+00:00",
+  "items": [
+    {
+      "item_id": "362e9f64c808408ea2a8d363525e87a2",
+      "content_type": "guardspine/pack-summary",
+      "content": {
+        "pack_id": "epk_security_20260203043440_863c63fd",
+        "mode": "security_audit",
+        "source": {
+          "type": "repository",
+          "path": "D:\\Projects\\guardspine-kernel"
+        },
+        "findings": {
+          "critical_count": 1,
+          "high_count": 1,
+          "medium_count": 0,
+          "low_count": 0
+        },
+        "reasoning_steps": [
+          {
+            "id": "S1",
+            "action": "load_context",
+            "outcome": "Loaded 7,703,058 tokens from D:\\Projects\\guardspine-kernel"
+          },
+          {
+            "id": "S2",
+            "action": "claim_scan",
+            "outcome": "Evaluated 4 claims"
+          },
+          {
+            "id": "S3",
+            "action": "build_evidence",
+            "outcome": "Collected 22 evidence entries"
+          }
+        ],
+        "citations": [
+          {
+            "ref": "repo_scan"
+          },
+          {
+            "ref": "node_modules\\@vitest\\snapshot\\dist\\index.js#L17379"
+          },
+          {
+            "ref": "node_modules\\@vitest\\snapshot\\dist\\index.js#L17398"
+          },
+          {
+            "ref": "node_modules\\@vitest\\snapshot\\dist\\index.js#L17472"
+          },
+          {
+            "ref": "node_modules\\@vitest\\snapshot\\dist\\index.js#L17511"
+          },
+          {
+            "ref": "node_modules\\@vitest\\snapshot\\dist\\index.js#L17556"
+          },
+          {
+            "ref": "node_modules\\@vitest\\snapshot\\dist\\index.js#L17624"
+          },
+          {
+            "ref": "node_modules\\@vitest\\snapshot\\dist\\index.js#L17647"
+          },
+          {
+            "ref": "node_modules\\@vitest\\snapshot\\dist\\index.js#L17661"
+          },
+          {
+            "ref": "node_modules\\@vitest\\utils\\dist\\index.js#L21608"
+          },
+          {
+            "ref": "node_modules\\@vitest\\utils\\dist\\index.js#L21627"
+          },
+          {
+            "ref": "node_modules\\chai\\index.js#L1962"
+          },
+          {
+            "ref": "node_modules\\chai\\index.js#L3295"
+          },
+          {
+            "ref": "node_modules\\ms\\index.js#L7602"
+          },
+          {
+            "ref": "node_modules\\pathval\\index.js#L7891"
+          },
+          {
+            "ref": "node_modules\\@vitest\\mocker\\dist\\chunk-mocker.js#L11336"
+          },
+          {
+            "ref": "node_modules\\@vitest\\mocker\\dist\\chunk-pathe.ff20891b.js#L11882"
+          },
+          {
+            "ref": "node_modules\\@vitest\\snapshot\\dist\\index.js#L16632"
+          },
+          {
+            "ref": "node_modules\\@vitest\\snapshot\\dist\\index.js#L16636"
+          },
+          {
+            "ref": "node_modules\\@vitest\\snapshot\\dist\\index.js#L17127"
+          },
+          {
+            "ref": "node_modules\\@vitest\\snapshot\\dist\\index.js#L17346"
+          },
+          {
+            "ref": "repo_scan"
+          }
+        ],
+        "statistics": {
+          "passed": 2,
+          "failed": 2
+        }
+      },
+      "sequence": 0,
+      "content_hash": "sha256:79c2b7beb63cc7ff46ebacdf8bd0d365b71e4038f2428960f285d2edb26e59d7"
+    },
+    {
+      "item_id": "d3d0c0d76ea04a23be6cdb0cac59d58c",
+      "content_type": "guardspine/claim-result",
+      "content": {
+        "claim_id": "SEC-SQLI-001",
+        "claim_text": "No raw SQL string concatenation",
+        "status": "pass",
+        "severity": "critical",
+        "expect": "zero_matches",
+        "rationale": "No violations found for: No raw SQL string concatenation",
+        "evidence": [
+          {
+            "type": "search",
+            "ref": "repo_scan",
+            "scope": "**/*",
+            "query": "execute\\([^)]*\\+|execute\\([^)]*%|execute\\([^)]*\\.format|cursor\\.execute\\(f[\"\\']",
+            "result": "zero_matches"
+          }
+        ]
+      },
+      "sequence": 1,
+      "content_hash": "sha256:bfdcbc30b2ed7e68d6b02d1565f3f1d2ecfa7f36e47e6d22bfb763f075de4c74"
+    },
+    {
+      "item_id": "60025c78b3804c16b41a2e61950d3703",
+      "content_type": "guardspine/claim-result",
+      "content": {
+        "claim_id": "SEC-SECRETS-001",
+        "claim_text": "No hardcoded credentials",
+        "status": "fail",
+        "severity": "critical",
+        "expect": "zero_matches",
+        "rationale": "Found 38 violation(s) for: No hardcoded credentials",
+        "evidence": [
+          {
+            "type": "code",
+            "ref": "node_modules\\@vitest\\snapshot\\dist\\index.js#L17379",
+            "snippet": "nextLastSignificantToken = \"?NonExpressionParenEnd\";",
+            "content_hash": "8edc6bde0a25eb33"
+          },
+          {
+            "type": "code",
+            "ref": "node_modules\\@vitest\\snapshot\\dist\\index.js#L17398",
+            "snippet": "lastSignificantToken = \"?InterpolationInTemplate\";",
+            "content_hash": "a98a2d33eccc2c77"
+          },
+          {
+            "type": "code",
+            "ref": "node_modules\\@vitest\\snapshot\\dist\\index.js#L17472",
+            "snippet": "nextLastSignificantToken = \"?NonExpressionParenKeyword\";",
+            "content_hash": "c96fe0786df9d995"
+          },
+          {
+            "type": "code",
+            "ref": "node_modules\\@vitest\\snapshot\\dist\\index.js#L17511",
+            "snippet": "lastSignificantToken = \"?InterpolationInTemplate\";",
+            "content_hash": "a98a2d33eccc2c77"
+          },
+          {
+            "type": "code",
+            "ref": "node_modules\\@vitest\\snapshot\\dist\\index.js#L17556",
+            "snippet": "nextLastSignificantToken = \"?InterpolationInJSX\";",
+            "content_hash": "4356d4f4b1d30a38"
+          },
+          {
+            "type": "code",
+            "ref": "node_modules\\@vitest\\snapshot\\dist\\index.js#L17624",
+            "snippet": "lastSignificantToken = \"?InterpolationInJSX\";",
+            "content_hash": "5ec0f0cff5ee126e"
+          },
+          {
+            "type": "code",
+            "ref": "node_modules\\@vitest\\snapshot\\dist\\index.js#L17647",
+            "snippet": "lastSignificantToken = \"?NoLineTerminatorHere\";",
+            "content_hash": "d8e7152e7941c252"
+          },
+          {
+            "type": "code",
+            "ref": "node_modules\\@vitest\\snapshot\\dist\\index.js#L17661",
+            "snippet": "lastSignificantToken = \"?NoLineTerminatorHere\";",
+            "content_hash": "d8e7152e7941c252"
+          },
+          {
+            "type": "code",
+            "ref": "node_modules\\@vitest\\utils\\dist\\index.js#L21608",
+            "snippet": "nextLastSignificantToken = \"?NonExpressionParenEnd\";",
+            "content_hash": "8edc6bde0a25eb33"
+          },
+          {
+            "type": "code",
+            "ref": "node_modules\\@vitest\\utils\\dist\\index.js#L21627",
+            "snippet": "lastSignificantToken = \"?InterpolationInTemplate\";",
+            "content_hash": "a98a2d33eccc2c77"
+          }
+        ]
+      },
+      "sequence": 2,
+      "content_hash": "sha256:b85c714bad784b5f4d373c5ddd65d67d299e99ee17e68b88266234d718b91efb"
+    },
+    {
+      "item_id": "670d4ae2a6d347c9a59e6046a624c8a2",
+      "content_type": "guardspine/claim-result",
+      "content": {
+        "claim_id": "SEC-EVAL-001",
+        "claim_text": "No dangerous eval/exec usage",
+        "status": "fail",
+        "severity": "high",
+        "expect": "zero_matches",
+        "rationale": "Found 50 violation(s) for: No dangerous eval/exec usage",
+        "evidence": [
+          {
+            "type": "code",
+            "ref": "node_modules\\chai\\index.js#L1962",
+            "snippet": "const mArr = regexp.exec(value);",
+            "content_hash": "c8a41af6ce58e656"
+          },
+          {
+            "type": "code",
+            "ref": "node_modules\\chai\\index.js#L3295",
+            "snippet": "re.exec(obj),",
+            "content_hash": "a2f2c08ded54b1a4"
+          },
+          {
+            "type": "code",
+            "ref": "node_modules\\ms\\index.js#L7602",
+            "snippet": "var match = /^(-?(?:\\d+)?\\.?\\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$/i.exec(",
+            "content_hash": "81d87bc582ccaa0b"
+          },
+          {
+            "type": "code",
+            "ref": "node_modules\\pathval\\index.js#L7891",
+            "snippet": "const mArr = regexp.exec(value);",
+            "content_hash": "c8a41af6ce58e656"
+          },
+          {
+            "type": "code",
+            "ref": "node_modules\\@vitest\\mocker\\dist\\chunk-mocker.js#L11336",
+            "snippet": "const parts = regExp.exec(urlLike.replace(/^\\(|\\)$/g, \"\"));",
+            "content_hash": "42f56f049699630b"
+          },
+          {
+            "type": "code",
+            "ref": "node_modules\\@vitest\\mocker\\dist\\chunk-pathe.ff20891b.js#L11882",
+            "snippet": "const match = _EXTNAME_RE.exec(normalizeWindowsPath(p));",
+            "content_hash": "a3630d3ac8101b08"
+          },
+          {
+            "type": "code",
+            "ref": "node_modules\\@vitest\\snapshot\\dist\\index.js#L16632",
+            "snippet": "const match = urlRegex.exec(input);",
+            "content_hash": "78d62ac149825234"
+          },
+          {
+            "type": "code",
+            "ref": "node_modules\\@vitest\\snapshot\\dist\\index.js#L16636",
+            "snippet": "const match = fileRegex.exec(input);",
+            "content_hash": "e213eeb9c1957eb7"
+          },
+          {
+            "type": "code",
+            "ref": "node_modules\\@vitest\\snapshot\\dist\\index.js#L17127",
+            "snippet": "const parts = regExp.exec(urlLike.replace(/^\\(|\\)$/g, \"\"));",
+            "content_hash": "42f56f049699630b"
+          },
+          {
+            "type": "code",
+            "ref": "node_modules\\@vitest\\snapshot\\dist\\index.js#L17346",
+            "snippet": "if (match = RegularExpressionLiteral.exec(input)) {",
+            "content_hash": "b22d2985b2f2119f"
+          }
+        ]
+      },
+      "sequence": 3,
+      "content_hash": "sha256:e6cf991f57547191bfaa5c0f781fedaffb725aed5612f18e629be851c6b2e195"
+    },
+    {
+      "item_id": "a26e2ed46de64d779ea9905cdccb9118",
+      "content_type": "guardspine/claim-result",
+      "content": {
+        "claim_id": "SEC-SHELL-001",
+        "claim_text": "No shell injection vulnerabilities",
+        "status": "pass",
+        "severity": "critical",
+        "expect": "zero_matches",
+        "rationale": "No violations found for: No shell injection vulnerabilities",
+        "evidence": [
+          {
+            "type": "search",
+            "ref": "repo_scan",
+            "scope": "**/*",
+            "query": "os\\.system\\s*\\([^)]*\\+|subprocess\\..*shell\\s*=\\s*True",
+            "result": "zero_matches"
+          }
+        ]
+      },
+      "sequence": 4,
+      "content_hash": "sha256:87a5a7b760904aaeffee912951905887ab80d201525716d53a738c7fd9ef04af"
+    }
+  ],
+  "immutability_proof": {
+    "hash_chain": [
+      {
+        "sequence": 0,
+        "item_id": "362e9f64c808408ea2a8d363525e87a2",
+        "content_type": "guardspine/pack-summary",
+        "content_hash": "sha256:79c2b7beb63cc7ff46ebacdf8bd0d365b71e4038f2428960f285d2edb26e59d7",
+        "previous_hash": "genesis",
+        "chain_hash": "sha256:6a27f95c5e40c31579d373af3f2d8da41fe4511057b05e32c86d422b09e28f86"
+      },
+      {
+        "sequence": 1,
+        "item_id": "d3d0c0d76ea04a23be6cdb0cac59d58c",
+        "content_type": "guardspine/claim-result",
+        "content_hash": "sha256:bfdcbc30b2ed7e68d6b02d1565f3f1d2ecfa7f36e47e6d22bfb763f075de4c74",
+        "previous_hash": "sha256:6a27f95c5e40c31579d373af3f2d8da41fe4511057b05e32c86d422b09e28f86",
+        "chain_hash": "sha256:73bcb45476e93e37bf96085ceea5c8218ecfe1904dd291ba7547225517afd1ca"
+      },
+      {
+        "sequence": 2,
+        "item_id": "60025c78b3804c16b41a2e61950d3703",
+        "content_type": "guardspine/claim-result",
+        "content_hash": "sha256:b85c714bad784b5f4d373c5ddd65d67d299e99ee17e68b88266234d718b91efb",
+        "previous_hash": "sha256:73bcb45476e93e37bf96085ceea5c8218ecfe1904dd291ba7547225517afd1ca",
+        "chain_hash": "sha256:1c57ecb2cfd1129e61976a81019380699b616c297cc1b379bcfbbd2b20bbd3d9"
+      },
+      {
+        "sequence": 3,
+        "item_id": "670d4ae2a6d347c9a59e6046a624c8a2",
+        "content_type": "guardspine/claim-result",
+        "content_hash": "sha256:e6cf991f57547191bfaa5c0f781fedaffb725aed5612f18e629be851c6b2e195",
+        "previous_hash": "sha256:1c57ecb2cfd1129e61976a81019380699b616c297cc1b379bcfbbd2b20bbd3d9",
+        "chain_hash": "sha256:781ac2c3c908d3618dc9178e614c2aeea76390da1bdc9de8d43b468ac417730b"
+      },
+      {
+        "sequence": 4,
+        "item_id": "a26e2ed46de64d779ea9905cdccb9118",
+        "content_type": "guardspine/claim-result",
+        "content_hash": "sha256:87a5a7b760904aaeffee912951905887ab80d201525716d53a738c7fd9ef04af",
+        "previous_hash": "sha256:781ac2c3c908d3618dc9178e614c2aeea76390da1bdc9de8d43b468ac417730b",
+        "chain_hash": "sha256:3c6507307d6b4adf7e82219c37ea800a1a77e5e3b5e8eb2a5cffbc566b39ae3e"
+      }
+    ],
+    "root_hash": "sha256:b0976cc8fd5eaf15a69c0c4d3787af220688264d2df85dfec5382ab568555c6f"
+  },
+  "metadata": {
+    "pack_id": "epk_security_20260203043440_863c63fd",
+    "schema_version": "0.2.0",
+    "mode": "security_audit",
+    "source": {
+      "type": "repository",
+      "path": "D:\\Projects\\guardspine-kernel"
+    },
+    "findings": {
+      "critical_count": 1,
+      "high_count": 1,
+      "medium_count": 0,
+      "low_count": 0
+    },
+    "statistics": {
+      "passed": 2,
+      "failed": 2
+    }
+  }
+}
