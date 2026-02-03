@@ -27,7 +27,7 @@ const { items, immutabilityProof } = sealBundle({
 
 const bundle = {
   bundle_id: crypto.randomUUID(),
-  version: "0.1.0",
+  version: "0.2.0",
   created_at: new Date().toISOString(),
   items,
   immutability_proof: immutabilityProof,

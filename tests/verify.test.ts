@@ -20,7 +20,7 @@ function makeValidBundle(): EvidenceBundle {
 
   return {
     bundle_id: "test-bundle-001",
-    version: "0.1.0",
+    version: "0.2.0",
     created_at: "2026-01-29T00:00:00Z",
     items: result.items,
     immutability_proof: result.immutabilityProof,

@@ -14,14 +14,20 @@ export {
   computeRootHash,
   sealBundle,
 } from "./seal.js";
-export type { ChainInput, SealResult } from "./seal.js";
+export type { ChainInput, SealResult, ProofVersion, SealOptions } from "./seal.js";
 
 // Verification
 export {
   verifyHashChain,
   verifyRootHash,
   verifyContentHashes,
+  verifySignatures,
   verifyBundle,
+} from "./verify.js";
+export type {
+  SignatureVerificationOptions,
+  ProofVerificationOptions,
+  BundleVerificationOptions,
 } from "./verify.js";
 
 // Errors

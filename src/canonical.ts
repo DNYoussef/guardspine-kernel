@@ -4,8 +4,8 @@
  * Rules:
  * - Object keys sorted lexicographically by Unicode code point
  * - No whitespace between tokens
- * - Numbers: no leading zeros, no trailing zeros in fractions,
- *   no positive sign, no scientific notation for integers
+ * - Numbers: shortest round-trip per ECMAScript NumberToString;
+ *   large magnitudes may use exponent notation
  * - Strings: minimal escaping (control chars, backslash, double-quote)
  * - null, true, false as literals
  */
@@ -47,8 +47,7 @@ function serializeNumber(num: number): string {
   }
 
   // RFC 8785: use the shortest representation that round-trips.
-  // For integers, no decimal point or exponent.
-  // For floats, use toString which gives shortest round-trip in V8.
+  // We follow ECMAScript NumberToString via JSON.stringify for general cases.
   if (Number.isInteger(num) && Math.abs(num) < Number.MAX_SAFE_INTEGER) {
     // Avoid scientific notation for large integers
     if (Math.abs(num) < 1e20) {

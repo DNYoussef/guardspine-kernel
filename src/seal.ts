@@ -40,18 +40,60 @@ export interface ChainInput {
   contentId: string;
 }
 
+export type ProofVersion = "v0.2.0" | "legacy";
+
+export interface SealOptions {
+  proofVersion?: ProofVersion;
+}
+
+function chainHashV020(
+  sequence: number,
+  itemId: string,
+  contentType: string,
+  contentHash: string,
+  previousHash: string,
+): string {
+  const chainInput = `${sequence}|${itemId}|${contentType}|${contentHash}|${previousHash}`;
+  return sha256(chainInput);
+}
+
+function chainHashLegacy(
+  sequence: number,
+  contentHash: string,
+  previousHash: string,
+): string {
+  const chainInput = `${sequence}|${contentHash}|${previousHash}`;
+  return sha256(chainInput);
+}
+
+function resolveProofVersion(options?: SealOptions): ProofVersion {
+  return options?.proofVersion ?? "v0.2.0";
+}
+
 /**
  * Build a hash chain from an ordered list of items.
- * Each link's chain_hash = SHA-256(sequence + content_hash + previous_hash).
+ * Each link's chain_hash depends on proofVersion (v0.2.0 by default).
  */
-export function buildHashChain(items: ChainInput[]): HashChain {
+export function buildHashChain(
+  items: ChainInput[],
+  options?: SealOptions,
+): HashChain {
   const chain: HashChainLink[] = [];
+  const version = resolveProofVersion(options);
 
   for (let seq = 0; seq < items.length; seq++) {
     const itemContentHash = computeContentHash(items[seq].content);
     const previousHash = seq === 0 ? GENESIS_HASH : chain[seq - 1].chain_hash;
-    const chainInput = `${seq}|${items[seq].contentId}|${items[seq].contentType}|${itemContentHash}|${previousHash}`;
-    const chainHash = sha256(chainInput);
+    const chainHash =
+      version === "legacy"
+        ? chainHashLegacy(seq, itemContentHash, previousHash)
+        : chainHashV020(
+          seq,
+          items[seq].contentId,
+          items[seq].contentType,
+          itemContentHash,
+          previousHash,
+        );
 
     chain.push({
       sequence: seq,
@@ -88,7 +130,8 @@ export interface SealResult {
  * Fills in content_hash and sequence on each item.
  */
 export function sealBundle(
-  bundle: Partial<EvidenceBundle> & { items: Partial<EvidenceItem>[] }
+  bundle: Partial<EvidenceBundle> & { items: Partial<EvidenceItem>[] },
+  options?: SealOptions,
 ): SealResult {
   const chainInputs: ChainInput[] = bundle.items.map((item) => ({
     content: item.content ?? {},
@@ -96,7 +139,7 @@ export function sealBundle(
     contentId: item.item_id ?? "unknown",
   }));
 
-  const chain = buildHashChain(chainInputs);
+  const chain = buildHashChain(chainInputs, options);
   const rootHash = computeRootHash(chain);
 
   const sealedItems: EvidenceItem[] = bundle.items.map((item, idx) => ({
