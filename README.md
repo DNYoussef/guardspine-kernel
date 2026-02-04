@@ -104,13 +104,24 @@ canonicalJson({ z: 1, a: 2 });
 The `tests/fixtures/` directory contains golden vector bundles that ALL implementations
 must verify identically. Do not modify these fixtures.
 
+## Language Implementations
+
+This TypeScript library is the **canonical reference implementation**. All other language ports MUST produce byte-identical hashes.
+
+| Language | Package | Purpose |
+|----------|---------|---------|
+| **TypeScript** (this repo) | `@guardspine/kernel` | Reference implementation - used by OpenClaw plugin |
+| **Python** | [guardspine-kernel-py](https://github.com/DNYoussef/guardspine-kernel-py) | For Python integrations (FastAPI, scripts, ML pipelines) |
+
+**Cross-language guarantee**: Both implementations use RFC 8785 canonical JSON serialization and produce identical SHA256 hashes for the same input. Golden vector tests in `guardspine-spec` validate parity.
+
 ## Related Projects
 
 | Project | Description |
 |---------|-------------|
-| [guardspine-spec](https://github.com/DNYoussef/guardspine-spec) | Bundle specification |
-| [guardspine-verify](https://github.com/DNYoussef/guardspine-verify) | Python CLI verifier |
-| [guardspine-kernel-py](https://github.com/DNYoussef/guardspine-kernel-py) | Python bridge |
+| [guardspine-spec](https://github.com/DNYoussef/guardspine-spec) | Bundle specification and golden vectors |
+| [guardspine-openclaw](https://github.com/DNYoussef/guardspine-openclaw) | OpenClaw governance plugin |
+| [guardspine-verify](https://github.com/DNYoussef/guardspine-verify) | CLI verification tool |
 
 ## License
 
