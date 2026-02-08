@@ -70,6 +70,9 @@ function resolveProofVersion(options?: SealOptions): ProofVersion {
   return options?.proofVersion ?? "v0.2.0";
 }
 
+/** Hard ceiling on chain length. No evidence bundle should need more. */
+const MAX_CHAIN_ITEMS = 10_000;
+
 /**
  * Build a hash chain from an ordered list of items.
  * Each link's chain_hash depends on proofVersion (v0.2.0 by default).
@@ -78,6 +81,11 @@ export function buildHashChain(
   items: ChainInput[],
   options?: SealOptions,
 ): HashChain {
+  if (items.length > MAX_CHAIN_ITEMS) {
+    throw new Error(
+      `buildHashChain: ${items.length} items exceeds limit of ${MAX_CHAIN_ITEMS}`,
+    );
+  }
   const chain: HashChainLink[] = [];
   const version = resolveProofVersion(options);
 
@@ -111,10 +119,16 @@ export function buildHashChain(
 /**
  * Compute the root hash over an entire chain.
  * root_hash = SHA-256(concatenation of all chain_hash values).
+ *
+ * Uses incremental hashing: O(1) memory instead of building
+ * an intermediate concatenated string. Produces identical output.
  */
 export function computeRootHash(chain: HashChain): string {
-  const concat = chain.map((link) => link.chain_hash).join("");
-  return sha256(concat);
+  const h = createHash("sha256");
+  for (const link of chain) {
+    h.update(link.chain_hash, "utf-8");
+  }
+  return `sha256:${h.digest("hex")}`;
 }
 
 export interface SealResult {
@@ -133,18 +147,30 @@ export function sealBundle(
   bundle: Partial<EvidenceBundle> & { items: Partial<EvidenceItem>[] },
   options?: SealOptions,
 ): SealResult {
-  const chainInputs: ChainInput[] = bundle.items.map((item) => ({
-    content: item.content ?? {},
-    contentType: item.content_type ?? "unknown",
-    contentId: item.item_id ?? "unknown",
-  }));
+  if (!bundle.items || bundle.items.length === 0) {
+    throw new Error("sealBundle: items must be a non-empty array");
+  }
+
+  const chainInputs: ChainInput[] = bundle.items.map((item, idx) => {
+    if (!item.item_id) {
+      throw new Error(`sealBundle: item ${idx} missing item_id`);
+    }
+    if (!item.content_type) {
+      throw new Error(`sealBundle: item ${idx} missing content_type`);
+    }
+    return {
+      content: item.content ?? {},
+      contentType: item.content_type,
+      contentId: item.item_id,
+    };
+  });
 
   const chain = buildHashChain(chainInputs, options);
   const rootHash = computeRootHash(chain);
 
   const sealedItems: EvidenceItem[] = bundle.items.map((item, idx) => ({
-    item_id: item.item_id ?? `item-${idx}`,
-    content_type: item.content_type ?? "unknown",
+    item_id: item.item_id!,
+    content_type: item.content_type!,
     content: (item.content ?? {}) as Record<string, unknown>,
     content_hash: chain[idx].content_hash,
     sequence: idx,

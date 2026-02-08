@@ -336,8 +336,11 @@ export function verifyRootHash(proof: ImmutabilityProof): VerificationResult {
     return { valid: false, errors };
   }
 
-  const concat = proof.hash_chain.map((link) => link.chain_hash).join("");
-  const expected = sha256(concat);
+  const h = createHash("sha256");
+  for (const link of proof.hash_chain) {
+    h.update(link.chain_hash, "utf-8");
+  }
+  const expected = `sha256:${h.digest("hex")}`;
 
   if (!safeEqual(proof.root_hash, expected)) {
     errors.push({
