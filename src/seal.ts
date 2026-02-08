@@ -67,7 +67,13 @@ function chainHashLegacy(
 }
 
 function resolveProofVersion(options?: SealOptions): ProofVersion {
-  return options?.proofVersion ?? "v0.2.0";
+  const version = options?.proofVersion ?? "v0.2.0";
+  if (version === "legacy") {
+    console.warn(
+      "guardspine-kernel: proofVersion 'legacy' is deprecated and will be removed in the next major version. Use 'v0.2.0'.",
+    );
+  }
+  return version;
 }
 
 /** Hard ceiling on chain length. No evidence bundle should need more. */

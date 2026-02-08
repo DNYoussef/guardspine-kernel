@@ -195,6 +195,11 @@ function resolveAcceptedProofVersions(
   if (!versions || versions.length === 0) {
     return ["v0.2.0"];
   }
+  if (versions.includes("legacy")) {
+    console.warn(
+      "guardspine-kernel: accepting 'legacy' proof version is deprecated. Migrate chains to 'v0.2.0'.",
+    );
+  }
   return versions;
 }
 
