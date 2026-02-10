@@ -128,7 +128,9 @@ export function verifySignatures(
       const expected = createHmac("sha256", options.hmacSecret)
         .update(content)
         .digest("base64");
-      if (!timingSafeEqual(Buffer.from(expected), Buffer.from(signatureValue))) {
+      const expectedBuf = Buffer.from(expected);
+      const actualBuf = Buffer.from(signatureValue);
+      if (expectedBuf.length !== actualBuf.length || !timingSafeEqual(expectedBuf, actualBuf)) {
         errors.push({
           code: ErrorCode.SIGNATURE_INVALID,
           message: "HMAC signature verification failed",
