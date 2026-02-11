@@ -429,8 +429,9 @@ export function verifyBundle(
     }
   }
 
-  // Verify bundle version VALUE (not just presence)
-  const SUPPORTED_VERSIONS = ["0.2.0"];
+  // Verify bundle version VALUE (not just presence).
+  // v0.2.1 adds optional sanitization metadata; proof format is unchanged from v0.2.0.
+  const SUPPORTED_VERSIONS = ["0.2.0", "0.2.1"];
   if (bundle.version && !SUPPORTED_VERSIONS.includes(bundle.version)) {
     errors.push({
       code: ErrorCode.UNSUPPORTED_VERSION,
