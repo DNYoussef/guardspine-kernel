@@ -4,3 +4,5 @@ dist/
 .env
 .DS_Store
 coverage/
+evidence-packs/*.json
+dist/
