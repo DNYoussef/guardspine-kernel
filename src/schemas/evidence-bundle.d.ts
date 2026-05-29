@@ -19,7 +19,7 @@ export interface EvidenceBundle {
 export interface EvidenceItem {
   item_id: string;
   content_type: string;
-  content: Record<string, unknown> | unknown[];
+  content: Record<string, unknown> | unknown[] | null;
   content_hash: string;
   sequence: number;
   created_at?: string;

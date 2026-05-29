@@ -46,6 +46,12 @@ function serializeNumber(num: number): string {
     return "null";
   }
 
+  if (Number.isInteger(num) && !Number.isSafeInteger(num)) {
+    throw new TypeError(
+      `canonicalJson: integer ${num} exceeds JavaScript safe integer range`,
+    );
+  }
+
   // RFC 8785: use the shortest representation that round-trips.
   // We follow ECMAScript NumberToString via JSON.stringify for general cases.
   if (Number.isInteger(num) && Math.abs(num) < Number.MAX_SAFE_INTEGER) {
@@ -73,7 +79,7 @@ function serializeArray(arr: unknown[]): string {
 }
 
 function serializeObject(obj: Record<string, unknown>): string {
-  const keys = Object.keys(obj).sort();
+  const keys = Object.keys(obj).sort(compareUnicodeCodePoints);
   const pairs: string[] = [];
 
   for (const key of keys) {
@@ -86,4 +92,18 @@ function serializeObject(obj: Record<string, unknown>): string {
   }
 
   return "{" + pairs.join(",") + "}";
+}
+
+function compareUnicodeCodePoints(left: string, right: string): number {
+  const leftPoints = Array.from(left);
+  const rightPoints = Array.from(right);
+  const length = Math.min(leftPoints.length, rightPoints.length);
+  for (let index = 0; index < length; index++) {
+    const leftCode = leftPoints[index].codePointAt(0) ?? 0;
+    const rightCode = rightPoints[index].codePointAt(0) ?? 0;
+    if (leftCode !== rightCode) {
+      return leftCode - rightCode;
+    }
+  }
+  return leftPoints.length - rightPoints.length;
 }

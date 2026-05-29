@@ -38,7 +38,7 @@ function sha256(data: string): string {
   return `sha256:${createHash("sha256").update(data, "utf-8").digest("hex")}`;
 }
 
-function contentHash(content: object): string {
+function contentHash(content: unknown): string {
   return sha256(canonicalJson(content));
 }
 
@@ -69,8 +69,11 @@ function resolvePublicKey(
   signature: Signature,
   options: SignatureVerificationOptions | undefined,
 ): Buffer | null {
-  const keyId = signature.public_key_id || "default";
-  const key = options?.publicKeys?.[keyId] ?? options?.publicKeys?.default;
+  const keyId = signature.public_key_id;
+  if (!keyId) {
+    return null;
+  }
+  const key = options?.publicKeys?.[keyId];
   if (!key) {
     return null;
   }

@@ -35,6 +35,17 @@ describe("canonicalJson", () => {
     const result = canonicalJson({ a: 1, b: undefined, c: 3 });
     expect(result).toBe('{"a":1,"c":3}');
   });
+
+  it("rejects unsafe integers", () => {
+    expect(() => canonicalJson(9007199254740992)).toThrow("safe integer");
+  });
+
+  it("sorts object keys by Unicode code point", () => {
+    const privateUse = String.fromCodePoint(0xe000);
+    const linearB = String.fromCodePoint(0x10000);
+    const result = canonicalJson({ [privateUse]: 1, [linearB]: 2 });
+    expect(result.indexOf(privateUse)).toBeLessThan(result.indexOf(linearB));
+  });
 });
 
 describe("computeContentHash", () => {
@@ -145,6 +156,14 @@ describe("sealBundle", () => {
         items: [{ item_id: "", content_type: "test/a", content: { val: 1 } }],
       })
     ).toThrow("missing item_id");
+  });
+
+  it("preserves null content when sealing", () => {
+    const result = sealBundle({
+      items: [{ item_id: "i1", content_type: "test/null", content: null as never }],
+    });
+    expect(result.items[0].content).toBeNull();
+    expect(result.items[0].content_hash).toBe(computeContentHash(null));
   });
 });
 

@@ -20,7 +20,7 @@ export const GENESIS_HASH = "genesis";
  * Compute SHA-256 of the canonical JSON representation of an object.
  * Returns "sha256:<hex>".
  */
-export function computeContentHash(content: object): string {
+export function computeContentHash(content: unknown): string {
   const canonical = canonicalJson(content);
   const hash = createHash("sha256").update(canonical, "utf-8").digest("hex");
   return `sha256:${hash}`;
@@ -35,7 +35,7 @@ function sha256(data: string): string {
 }
 
 export interface ChainInput {
-  content: object;
+  content: unknown;
   contentType: string;
   contentId: string;
 }
@@ -165,7 +165,7 @@ export function sealBundle(
       throw new Error(`sealBundle: item ${idx} missing content_type`);
     }
     return {
-      content: item.content ?? {},
+      content: item.content === undefined ? {} : item.content,
       contentType: item.content_type,
       contentId: item.item_id,
     };
@@ -177,7 +177,7 @@ export function sealBundle(
   const sealedItems: EvidenceItem[] = bundle.items.map((item, idx) => ({
     item_id: item.item_id!,
     content_type: item.content_type!,
-    content: (item.content ?? {}) as Record<string, unknown>,
+    content: (item.content === undefined ? {} : item.content) as Record<string, unknown>,
     content_hash: chain[idx].content_hash,
     sequence: idx,
   }));

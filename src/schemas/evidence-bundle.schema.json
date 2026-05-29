@@ -67,8 +67,8 @@
           "description": "MIME-like type tag, e.g. guardspine/test-result, guardspine/diff, guardspine/approval."
         },
         "content": {
-          "type": ["object", "array"],
-          "description": "Structured content. Objects or arrays accepted; primitives are not."
+          "type": ["object", "array", "null"],
+          "description": "Structured content. Objects, arrays, or null accepted; other primitives are not."
         },
         "content_hash": {
           "type": "string",
