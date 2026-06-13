@@ -3,7 +3,7 @@
 **The canonical trust anchor for GuardSpine evidence bundles.**
 
 [![npm](https://img.shields.io/npm/v/@guardspine/kernel)](https://www.npmjs.com/package/@guardspine/kernel)
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-BSL%201.1-blue.svg)](LICENSE)
 
 Offline evidence-bundle verification and sealing. Zero runtime dependencies.
 
@@ -155,4 +155,4 @@ This TypeScript library is the **canonical reference implementation**. All other
 
 ## License
 
-Apache-2.0
+Business Source License 1.1 (source-available) -- see [LICENSE](LICENSE). Free for non-commercial, evaluation, and small-organization use (annual revenue under USD 1,000,000); other production use requires a commercial license from GuardSpine, Inc. Each version converts to Apache-2.0 four years after its release.
