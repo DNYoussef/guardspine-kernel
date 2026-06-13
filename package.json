@@ -30,7 +30,7 @@
     "hash-chain",
     "integrity"
   ],
-  "license": "Apache-2.0",
+  "license": "BUSL-1.1",
   "devDependencies": {
     "@types/node": "^25.1.0",
     "typescript": "^5.4.0",
