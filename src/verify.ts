@@ -42,6 +42,21 @@ function sha256(data: string): string {
   return `sha256:${createHash("sha256").update(data, "utf-8").digest("hex")}`;
 }
 
+function sha256Bytes(buf: Buffer): string {
+  return `sha256:${createHash("sha256").update(buf).digest("hex")}`;
+}
+
+/** Bind the declared algorithm to the actual key type/curve (no label confusion). */
+function keyMatchesAlgo(keyObj: ReturnType<typeof createPublicKey>, algo: string): boolean {
+  const t = keyObj.asymmetricKeyType;
+  if (algo === "ed25519") return t === "ed25519";
+  if (algo === "rsa-sha256") return t === "rsa";
+  if (algo === "ecdsa-p256") {
+    return t === "ec" && keyObj.asymmetricKeyDetails?.namedCurve === "prime256v1";
+  }
+  return false;
+}
+
 function contentHash(content: unknown): string {
   return sha256(canonicalJson(content));
 }
@@ -51,10 +66,22 @@ function canonicalBytes(obj: unknown): Buffer {
 }
 
 export interface SignatureVerificationOptions {
-  /** Map of public_key_id -> PEM or base64 raw Ed25519 key. */
+  /** Map of public_key_id -> PEM or base64 raw Ed25519 key (external trust). */
   publicKeys?: Record<string, string>;
   /** Shared secret for HMAC-SHA256 signatures (if used). */
   hmacSecret?: string;
+  /**
+   * Allow-listed "sha256:<hex>" SPKI fingerprints. A signature whose embedded
+   * public_key recomputes to one of these is trusted (self-contained bundles).
+   */
+  trustedFingerprints?: string[];
+  /**
+   * Anti-forgery: when true (or when trustedFingerprints is non-empty), the
+   * bundle MUST carry >=1 asymmetric signature that is cryptographically valid
+   * AND trusted (key_id in publicKeys, or embedded key whose fingerprint is
+   * allow-listed). HMAC never counts.
+   */
+  requireSignature?: boolean;
 }
 
 export interface ProofVerificationOptions {
@@ -74,10 +101,13 @@ function resolvePublicKey(
   options: SignatureVerificationOptions | undefined,
 ): Buffer | null {
   const keyId = signature.public_key_id;
-  if (!keyId) {
-    return null;
-  }
-  const key = options?.publicKeys?.[keyId];
+  // Prefer a caller-supplied (externally trusted) key; otherwise fall back to the
+  // key embedded in the signature. This function only attests CRYPTO validity --
+  // trust (fingerprint pinning / key_id allow-listing) is enforced separately by
+  // countTrustedValidSignatures + requireSignature in verifyBundle.
+  const key =
+    (keyId ? options?.publicKeys?.[keyId] : undefined) ??
+    (signature as { public_key?: string }).public_key;
   if (!key) {
     return null;
   }
@@ -104,7 +134,7 @@ export function verifySignatures(
 ): VerificationResult {
   const errors: VerificationError[] = [];
   const signatures = bundle.signatures ?? [];
-  if (signatures.length === 0) {
+  if (!Array.isArray(signatures) || signatures.length === 0) {
     return { valid: true, errors };
   }
 
@@ -164,14 +194,12 @@ export function verifySignatures(
         ? createPublicKey(key)
         : createPublicKey({ key, format: "der", type: "spki" });
 
-      if (algo === "ed25519") {
+      if (!keyMatchesAlgo(keyObject, algo)) {
+        ok = false; // algorithm label does not match the actual key type/curve
+      } else if (algo === "ed25519") {
         ok = verify(null, content, keyObject, signatureBytes);
-      } else if (algo === "rsa-sha256") {
-        ok = verify("sha256", content, keyObject, signatureBytes);
-      } else if (algo === "ecdsa-p256") {
-        ok = verify("sha256", content, keyObject, signatureBytes);
       } else {
-        ok = false;
+        ok = verify("sha256", content, keyObject, signatureBytes);
       }
     } catch {
       ok = false;
@@ -187,6 +215,89 @@ export function verifySignatures(
   }
 
   return { valid: errors.length === 0, errors };
+}
+
+function loadPublicKeyDer(keyMaterial: string): { keyObj: ReturnType<typeof createPublicKey>; der: Buffer } {
+  let keyObj;
+  if (keyMaterial.startsWith("-----BEGIN")) {
+    keyObj = createPublicKey(keyMaterial);
+  } else {
+    const raw = Buffer.from(keyMaterial, "base64");
+    const der = raw.length === 32 ? ed25519RawToSpkiDer(raw) : raw;
+    keyObj = createPublicKey({ key: der, format: "der", type: "spki" });
+  }
+  const der = keyObj.export({ type: "spki", format: "der" }) as Buffer;
+  return { keyObj, der };
+}
+
+/**
+ * Count asymmetric signatures that are BOTH cryptographically valid over the
+ * canonical payload AND trusted. Trust = key_id in publicKeys (external, verified
+ * against the CALLER's key) OR the signer key's fingerprint, RECOMPUTED from the
+ * embedded public_key bytes (never the claimed public_key_id), is allow-listed.
+ * HMAC never counts. Trust-filtered before crypto; short-circuits on first hit.
+ */
+function countTrustedValidSignatures(
+  bundle: EvidenceBundle,
+  options: SignatureVerificationOptions | undefined,
+): number {
+  const sigs = (bundle.signatures ?? []) as Signature[];
+  if (!Array.isArray(sigs) || sigs.length === 0) {
+    return 0;
+  }
+  const content = canonicalBytes({ ...bundle, signatures: undefined });
+  const tf = new Set(options?.trustedFingerprints ?? []);
+  const tk = options?.publicKeys ?? {};
+  // Scan ALL signatures, and never cap crypto on TRUSTED candidates: a trusted
+  // public key is public and copyable, so an attacker can mint many
+  // trusted-fingerprint candidates with bogus signatures -- any total/verify cap
+  // would let them STARVE the real valid one. Untrusted sigs (fingerprint not
+  // pinned / key_id not supplied) are cheap-skipped before any crypto, so junk
+  // cannot force crypto work. ed25519/ECDSA/RSA verify is cheap; return on first
+  // trusted-valid signature.
+  for (const sig of sigs) {
+    if (!sig || typeof sig !== "object") continue;
+    const algo = sig.algorithm;
+    if (algo !== "ed25519" && algo !== "rsa-sha256" && algo !== "ecdsa-p256") continue;
+    const sigval = sig.signature_value;
+    if (!sigval) continue;
+    const keyId = sig.public_key_id;
+    let keyMaterial: string | undefined;
+    let trusted = false;
+    if (keyId && tk[keyId]) {
+      keyMaterial = tk[keyId];
+      trusted = true;
+    } else if ((sig as { public_key?: string }).public_key) {
+      keyMaterial = (sig as { public_key?: string }).public_key;
+      trusted = false;
+    } else {
+      continue;
+    }
+    let keyObj: ReturnType<typeof createPublicKey>;
+    let der: Buffer;
+    try {
+      ({ keyObj, der } = loadPublicKeyDer(keyMaterial as string));
+    } catch {
+      continue;
+    }
+    if (!trusted && !tf.has(sha256Bytes(der))) {
+      continue; // embedded key not fingerprint-pinned -> untrusted
+    }
+    if (!keyMatchesAlgo(keyObj, algo)) {
+      continue; // algorithm label does not match the actual key type/curve
+    }
+    try {
+      const signatureBytes = Buffer.from(sigval, "base64");
+      const ok =
+        algo === "ed25519"
+          ? verify(null, content, keyObj, signatureBytes)
+          : verify("sha256", content, keyObj, signatureBytes);
+      if (ok) return 1;
+    } catch {
+      // fall through
+    }
+  }
+  return 0;
 }
 
 /**
@@ -521,8 +632,28 @@ export function verifyBundle(
     }
   }
 
-  const sigResult = verifySignatures(bundle, options);
-  errors.push(...sigResult.errors);
+  // Signature handling. A trust anchor (requireSignature, trustedFingerprints, OR
+  // a non-empty publicKeys map) activates the ANTI-FORGERY gate: acceptance is
+  // based on >=1 cryptographically valid signature from a trusted key. Untrusted
+  // or junk extra signatures are ignored (they cannot DoS a valid trusted bundle,
+  // since signatures are excluded from the signed payload). HMAC never counts.
+  const wantsAsymTrust =
+    options?.requireSignature === true ||
+    (options?.trustedFingerprints?.length ?? 0) > 0 ||
+    (options?.publicKeys ? Object.keys(options.publicKeys).length > 0 : false);
+  if (wantsAsymTrust) {
+    if (countTrustedValidSignatures(bundle, options) === 0) {
+      errors.push({
+        code: ErrorCode.SIGNATURE_REQUIRED,
+        message:
+          "no valid signature from a trusted key (absent, untrusted, forged, or HMAC-only)",
+        details: {},
+      });
+    }
+  } else if (options?.hmacSecret) {
+    // Shared-secret integrity (NOT anti-forgery): verify present signatures.
+    errors.push(...verifySignatures(bundle, options).errors);
+  }
 
   return { valid: errors.length === 0, errors };
 }
